@@ -1,8 +1,10 @@
 import os
 import logging
+from turtle import update
 
+from _testcapi import awaitType
 from dotenv import load_dotenv
-from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
+from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 
 load_dotenv()  # take environment variables from .env.
@@ -18,6 +20,7 @@ logging.basicConfig(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [KeyboardButton('Поширити мою локацію', request_location=True)],
+        [KeyboardButton('Поділитися моїми контактами', request_contact=True)]
     ]
 
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
@@ -40,6 +43,19 @@ async def location(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f'lat = {lat}, lon = {lon}')
 
 
+async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.message.contact.user_id
+    first_name = update.message.contact.first_name
+    last_name = update.message.contact.last_name
+
+    await update.message.reply_text(
+        f"""user_id = {user_id}
+        first_name = {first_name}
+        last_name = {last_name}""",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
@@ -51,5 +67,8 @@ if __name__ == '__main__':
 
     location_handler = MessageHandler(filters.LOCATION, location)
     application.add_handler(location_handler)
+
+    contact_handler = MessageHandler(filters.CONTACT, contact)
+    application.add_handler(contact_handler)
 
     application.run_polling()
