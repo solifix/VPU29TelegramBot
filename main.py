@@ -1,8 +1,7 @@
-import os
 import logging
+import os
 from turtle import update
 
-from _testcapi import awaitType
 from dotenv import load_dotenv
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
